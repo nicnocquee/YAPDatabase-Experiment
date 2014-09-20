@@ -75,7 +75,16 @@ NSString *countriesCollectionName = @"countries";
 }
 
 - (void)didTapRegionButton:(id)sender {
-    [self setSelectedMappings:(self.selectedMappings==self.alphabeticalViewMappings)?self.regionGroupMappings:self.alphabeticalViewMappings];
+    if (self.selectedMappings==self.alphabeticalViewMappings) {
+        [self setSelectedMappings:self.regionGroupMappings];
+        UIBarButtonItem *regionButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Alphabetical", nil) style:UIBarButtonItemStylePlain target:self action:@selector(didTapRegionButton:)];
+        [self.navigationItem setRightBarButtonItem:regionButton];
+    } else {
+        [self setSelectedMappings:self.alphabeticalViewMappings];
+        UIBarButtonItem *regionButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Regions", nil) style:UIBarButtonItemStylePlain target:self action:@selector(didTapRegionButton:)];
+        [self.navigationItem setRightBarButtonItem:regionButton];
+    }
+    
 }
 
 #pragma mark - Database
