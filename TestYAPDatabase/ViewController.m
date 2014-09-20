@@ -11,8 +11,10 @@
 
 #import <YapDatabase.h>
 #import <YapDatabaseView.h>
+#import <AFNetworking.h>
 
 NSString *sortedCountriesViewName = @"sorted-countries";
+NSString *countriesCollectionName = @"countries";
 
 @interface ViewController ()
 
@@ -21,6 +23,7 @@ NSString *sortedCountriesViewName = @"sorted-countries";
 @property (nonatomic, strong) YapDatabaseView *databaseView;
 @property (nonatomic, strong) YapDatabaseViewMappings *mappings;
 @property (nonatomic, strong) YapDatabase *database;
+@property (nonatomic, assign) int page;
 
 @end
 
@@ -29,11 +32,14 @@ NSString *sortedCountriesViewName = @"sorted-countries";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.title = @"List";
+    self.title = @"Countries";
     [self.tableView setDelegate:self];
     [self.tableView setDataSource:self];
     
     [self setupDatabase];
+    
+    self.page = 1;
+    [self fetchCountries];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -67,9 +73,9 @@ NSString *sortedCountriesViewName = @"sorted-countries";
     };
     YapDatabaseViewBlockType sortingBlockType = YapDatabaseViewBlockTypeWithObject;
     YapDatabaseViewSortingWithObjectBlock sortingBlock = ^NSComparisonResult(NSString *group,
-                                                                             NSString *collection1, NSString *key1, id obj1,
-                                                                             NSString *collection2, NSString *key2, id obj2){
-        return [obj1 compare:obj2 options:NSCaseInsensitiveSearch];
+                                                                             NSString *collection1, NSString *key1, Country *obj1,
+                                                                             NSString *collection2, NSString *key2, Country *obj2){
+        return [obj1.name compare:obj2.name];
     };
     self.databaseView = [[YapDatabaseView alloc] initWithGroupingBlock:groupingBlock
                                                      groupingBlockType:groupingBlockType
@@ -171,6 +177,32 @@ NSString *sortedCountriesViewName = @"sorted-countries";
 }
 
 #pragma mark - Networking
+
+- (void)fetchCountries {
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    [manager setResponseSerializer:[AFJSONResponseSerializer serializerWithReadingOptions:0]];
+    [manager GET:[NSString stringWithFormat:@"http://api.worldbank.org/countries?format=json&page=%d", self.page] parameters:nil success:^(AFHTTPRequestOperation *operation, NSArray *responseObject) {
+        NSArray *countriesJSON = [responseObject lastObject];
+        if (countriesJSON) {
+            NSLog(@"Got %lu countries", (unsigned long)countriesJSON.count);
+            NSError *error;
+            NSArray *countries = [MTLJSONAdapter modelsOfClass:[Country class] fromJSONArray:countriesJSON error:&error];
+            if (!error) {
+                [self.bgConnection asyncReadWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {
+                    for (Country *c in countries) {
+                        [transaction setObject:c forKey:c.countryId inCollection:countriesCollectionName];
+                    }
+                } completionBlock:^{
+                    NSLog(@"Done inserting to db");
+                }];
+            } else {
+                NSLog(@"Error: %@", error);
+            }
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error: %@", error);
+    }];
+}
 
 #pragma mark - UITableViewDelegate
 
