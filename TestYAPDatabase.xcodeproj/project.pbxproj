@@ -17,6 +17,8 @@
 		03B326D619CD5F7200B87347 /* Country.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B326D519CD5F7200B87347 /* Country.m */; };
 		03B326D819CDCD7D00B87347 /* CountryCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 03B326D719CDCD7D00B87347 /* CountryCell.xib */; };
 		03B326DB19CDCD9C00B87347 /* CountryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B326DA19CDCD9C00B87347 /* CountryCell.m */; };
+		03B326DD19CDEBC600B87347 /* RegionHeader.xib in Resources */ = {isa = PBXBuildFile; fileRef = 03B326DC19CDEBC600B87347 /* RegionHeader.xib */; };
+		03B326E019CDECC600B87347 /* RegionHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B326DF19CDECC600B87347 /* RegionHeader.m */; };
 		22ECC34D3E084F9687BF5DD3 /* libPods-TestYAPDatabase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D395FA4B08724A55B5E0857B /* libPods-TestYAPDatabase.a */; };
 /* End PBXBuildFile section */
 
@@ -49,6 +51,9 @@
 		03B326D719CDCD7D00B87347 /* CountryCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CountryCell.xib; sourceTree = "<group>"; };
 		03B326D919CDCD9C00B87347 /* CountryCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CountryCell.h; sourceTree = "<group>"; };
 		03B326DA19CDCD9C00B87347 /* CountryCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CountryCell.m; sourceTree = "<group>"; };
+		03B326DC19CDEBC600B87347 /* RegionHeader.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RegionHeader.xib; sourceTree = "<group>"; };
+		03B326DE19CDECC600B87347 /* RegionHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegionHeader.h; sourceTree = "<group>"; };
+		03B326DF19CDECC600B87347 /* RegionHeader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RegionHeader.m; sourceTree = "<group>"; };
 		2482CBA630DF4424A9B8A00E /* Pods-TestYAPDatabase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TestYAPDatabase.xcconfig"; path = "Pods/Pods-TestYAPDatabase.xcconfig"; sourceTree = "<group>"; };
 		D395FA4B08724A55B5E0857B /* libPods-TestYAPDatabase.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TestYAPDatabase.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -108,6 +113,9 @@
 				03B326D719CDCD7D00B87347 /* CountryCell.xib */,
 				03B326D919CDCD9C00B87347 /* CountryCell.h */,
 				03B326DA19CDCD9C00B87347 /* CountryCell.m */,
+				03B326DC19CDEBC600B87347 /* RegionHeader.xib */,
+				03B326DE19CDECC600B87347 /* RegionHeader.h */,
+				03B326DF19CDECC600B87347 /* RegionHeader.m */,
 			);
 			path = TestYAPDatabase;
 			sourceTree = "<group>";
@@ -231,6 +239,7 @@
 				03B326D819CDCD7D00B87347 /* CountryCell.xib in Resources */,
 				03B326BA19CD5BE000B87347 /* Main.storyboard in Resources */,
 				03B326BF19CD5BE000B87347 /* LaunchScreen.xib in Resources */,
+				03B326DD19CDEBC600B87347 /* RegionHeader.xib in Resources */,
 				03B326BC19CD5BE000B87347 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -282,6 +291,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03B326E019CDECC600B87347 /* RegionHeader.m in Sources */,
 				03B326D619CD5F7200B87347 /* Country.m in Sources */,
 				03B326DB19CDCD9C00B87347 /* CountryCell.m in Sources */,
 				03B326B719CD5BE000B87347 /* ViewController.m in Sources */,

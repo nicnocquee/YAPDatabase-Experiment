@@ -15,6 +15,8 @@
 @property (nonatomic, copy, readonly) NSString *iso2Code;
 @property (nonatomic, copy, readonly) NSString *name;
 @property (nonatomic, copy, readonly) NSString *capitalCity;
+@property (nonatomic, copy, readonly) NSString *regionId;
+@property (nonatomic, copy, readonly) NSString *regionName;
 
 - (BOOL)isEqualToCountry:(Country *)country;
 

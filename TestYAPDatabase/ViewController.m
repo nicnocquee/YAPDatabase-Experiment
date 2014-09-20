@@ -9,20 +9,25 @@
 #import "ViewController.h"
 #import "Country.h"
 #import "CountryCell.h"
+#import "RegionHeader.h"
 
 #import <YapDatabase.h>
 #import <YapDatabaseView.h>
 #import <AFNetworking.h>
 
 NSString *sortedCountriesViewName = @"sorted-countries";
+NSString *regionGroupedViewName = @"region-grouped-countries";
 NSString *countriesCollectionName = @"countries";
 
 @interface ViewController ()
 
 @property (nonatomic, strong) YapDatabaseConnection *mainConnection;
 @property (nonatomic, strong) YapDatabaseConnection *bgConnection;
-@property (nonatomic, strong) YapDatabaseView *databaseView;
-@property (nonatomic, strong) YapDatabaseViewMappings *mappings;
+@property (nonatomic, strong) YapDatabaseView *alphabeticalView;
+@property (nonatomic, strong) YapDatabaseViewMappings *alphabeticalViewMappings;
+@property (nonatomic, strong) YapDatabaseView *regionGroupView;
+@property (nonatomic, strong) YapDatabaseViewMappings *regionGroupMappings;
+@property (nonatomic, strong) YapDatabaseViewMappings *selectedMappings;
 @property (nonatomic, strong) YapDatabase *database;
 @property (nonatomic, assign) int page;
 @property (nonatomic, assign) int totalCountries;
@@ -37,7 +42,11 @@ NSString *countriesCollectionName = @"countries";
     
     self.title = @"Countries";
     
+    UIBarButtonItem *regionButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Regions", nil) style:UIBarButtonItemStylePlain target:self action:@selector(didTapRegionButton:)];
+    [self.navigationItem setRightBarButtonItem:regionButton];
+    
     [self.tableView registerNib:[UINib nibWithNibName:NSStringFromClass([CountryCell class]) bundle:nil] forCellReuseIdentifier:@"cell"];
+    
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = 68;
     [self.tableView setDelegate:self];
@@ -54,6 +63,21 @@ NSString *countriesCollectionName = @"countries";
     // Dispose of any resources that can be recreated.
 }
 
+- (void)setSelectedMappings:(YapDatabaseViewMappings *)selectedMappings {
+    if (_selectedMappings != selectedMappings) {
+        _selectedMappings = selectedMappings;
+        
+        [self.mainConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+            [_selectedMappings updateWithTransaction:transaction];
+        }];
+        [self.tableView reloadData];
+    }
+}
+
+- (void)didTapRegionButton:(id)sender {
+    [self setSelectedMappings:(self.selectedMappings==self.alphabeticalViewMappings)?self.regionGroupMappings:self.alphabeticalViewMappings];
+}
+
 #pragma mark - Database
 
 - (void)setupDatabase {
@@ -68,11 +92,24 @@ NSString *countriesCollectionName = @"countries";
     self.bgConnection.objectCacheEnabled = NO; // don't need cache for write-only connection
     self.bgConnection.metadataCacheEnabled = NO;
     
+    [self registerRegionGroupedView];
+    [self registerAlphabeticalView];
+    [self.mainConnection beginLongLivedReadTransaction];
+    [self setSelectedMappings:self.alphabeticalViewMappings];
+    
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(yapDatabaseModified:)
+                                                 name:YapDatabaseModifiedNotification
+                                               object:self.database];
+}
+
+- (void)registerAlphabeticalView {
     YapDatabaseViewBlockType groupingBlockType = YapDatabaseViewBlockTypeWithObject;
     YapDatabaseViewGroupingWithObjectBlock groupingBlock = ^NSString *(NSString *collection, NSString *key, id object) {
         if ([object isKindOfClass:[Country class]]) {
             Country *country = (Country *)object;
-            if (country.name && country.name.length >= 1) {
+            if (country.name && country.name.length >= 1 && country.capitalCity.length > 0) {
                 return [country.name substringToIndex:1];
             }
         }
@@ -84,28 +121,47 @@ NSString *countriesCollectionName = @"countries";
                                                                              NSString *collection2, NSString *key2, Country *obj2){
         return [obj1.name compare:obj2.name];
     };
-    self.databaseView = [[YapDatabaseView alloc] initWithGroupingBlock:groupingBlock
-                                                     groupingBlockType:groupingBlockType
-                                                          sortingBlock:sortingBlock
-                                                      sortingBlockType:sortingBlockType];
-    [self.database registerExtension:self.databaseView withName:sortedCountriesViewName];
+    self.alphabeticalView = [[YapDatabaseView alloc] initWithGroupingBlock:groupingBlock
+                                                         groupingBlockType:groupingBlockType
+                                                              sortingBlock:sortingBlock
+                                                          sortingBlockType:sortingBlockType];
+    [self.database registerExtension:self.alphabeticalView withName:sortedCountriesViewName];
     
-    self.mappings = [[YapDatabaseViewMappings alloc] initWithGroupFilterBlock:^BOOL(NSString *group, YapDatabaseReadTransaction *transaction) {
+    self.alphabeticalViewMappings = [[YapDatabaseViewMappings alloc] initWithGroupFilterBlock:^BOOL(NSString *group, YapDatabaseReadTransaction *transaction) {
         return YES;
     } sortBlock:^NSComparisonResult(NSString *group1, NSString *group2, YapDatabaseReadTransaction *transaction) {
         return [group1 compare:group2];
     } view:sortedCountriesViewName];
+}
+
+- (void)registerRegionGroupedView {
+    YapDatabaseViewBlockType groupingBlockType = YapDatabaseViewBlockTypeWithObject;
+    YapDatabaseViewGroupingWithObjectBlock groupingBlock = ^NSString *(NSString *collection, NSString *key, id object) {
+        if ([object isKindOfClass:[Country class]]) {
+            Country *country = (Country *)object;
+            if (country.regionName && country.regionName.length > 0 && country.capitalCity.length > 0) {
+                return country.regionName;
+            }
+        }
+        return nil;
+    };
+    YapDatabaseViewBlockType sortingBlockType = YapDatabaseViewBlockTypeWithObject;
+    YapDatabaseViewSortingWithObjectBlock sortingBlock = ^NSComparisonResult(NSString *group,
+                                                                             NSString *collection1, NSString *key1, Country *obj1,
+                                                                             NSString *collection2, NSString *key2, Country *obj2){
+        return [obj1.name compare:obj2.name];
+    };
+    self.regionGroupView = [[YapDatabaseView alloc] initWithGroupingBlock:groupingBlock
+                                                         groupingBlockType:groupingBlockType
+                                                              sortingBlock:sortingBlock
+                                                          sortingBlockType:sortingBlockType];
+    [self.database registerExtension:self.regionGroupView withName:regionGroupedViewName];
     
-    [self.mainConnection beginLongLivedReadTransaction];
-    [self.mainConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-        [self.mappings updateWithTransaction:transaction];
-    }];
-    
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(yapDatabaseModified:)
-                                                 name:YapDatabaseModifiedNotification
-                                               object:self.database];
+    self.regionGroupMappings = [[YapDatabaseViewMappings alloc] initWithGroupFilterBlock:^BOOL(NSString *group, YapDatabaseReadTransaction *transaction) {
+        return YES;
+    } sortBlock:^NSComparisonResult(NSString *group1, NSString *group2, YapDatabaseReadTransaction *transaction) {
+        return [group1 compare:group2];
+    } view:regionGroupedViewName];
 }
 
 - (NSString *)databasePath
@@ -121,9 +177,9 @@ NSString *countriesCollectionName = @"countries";
 - (void)yapDatabaseModified:(NSNotification *)notification {
     NSArray *notifications = [self.mainConnection beginLongLivedReadTransaction];
     
-    if (![[self.mainConnection ext:sortedCountriesViewName] hasChangesForNotifications:notifications]) {
+    if (![[self.mainConnection ext:self.selectedMappings.view] hasChangesForNotifications:notifications]) {
         [self.mainConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-            [self.mappings updateWithTransaction:transaction];
+            [self.selectedMappings updateWithTransaction:transaction];
         }];
         return;
     }
@@ -131,15 +187,15 @@ NSString *countriesCollectionName = @"countries";
     NSArray *sectionChanges = nil;
     NSArray *rowChanges = nil;
     
-    [[self.mainConnection ext:sortedCountriesViewName] getSectionChanges:&sectionChanges
+    [[self.mainConnection ext:self.selectedMappings.view] getSectionChanges:&sectionChanges
                                                               rowChanges:&rowChanges
                                                         forNotifications:notifications
-                                                            withMappings:self.mappings];
+                                                            withMappings:self.selectedMappings];
     if (sectionChanges.count == 0 && rowChanges.count == 0) {
         return;
     }
     
-    NSInteger numberOfCountries = [self.mappings numberOfItemsInAllGroups];
+    NSInteger numberOfCountries = [self.selectedMappings numberOfItemsInAllGroups];
     if (numberOfCountries > 0) {
         self.title = [NSString stringWithFormat:NSLocalizedString(@"Countries (%d)", nil), (int)numberOfCountries];
     }
@@ -232,7 +288,10 @@ NSString *countriesCollectionName = @"countries";
 }
 
 - (void)fetchNext {
-    NSInteger totalCountriesFetched = [self.mappings numberOfItemsInAllGroups];
+    __block NSInteger totalCountriesFetched;
+    [self.mainConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+        totalCountriesFetched = [transaction numberOfKeysInCollection:countriesCollectionName];
+    }];
     if (totalCountriesFetched < self.totalCountries && !self.isFetching) {
         self.fetching = YES;
         self.page++;
@@ -242,29 +301,54 @@ NSString *countriesCollectionName = @"countries";
 
 #pragma mark - UITableViewDelegate
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    return [self.mappings groupForSection:section];
-}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     __block Country *country = nil;
     //NSString *group = [self.mappings groupForSection:indexPath.section];
     [self.mainConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-        country = [[transaction ext:sortedCountriesViewName] objectAtIndexPath:indexPath withMappings:self.mappings];
+        country = [[transaction ext:self.selectedMappings.view] objectAtIndexPath:indexPath withMappings:self.selectedMappings];
     }];
     NSLog(@"Country: %@", country);
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    RegionHeader *header = [self regionHeaderForSection:section];
+    [header setNeedsUpdateConstraints];
+    [header updateConstraintsIfNeeded];
+    return header;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    RegionHeader *header = [self regionHeaderForSection:section];
+    header.frame = ({CGRect frame = header.frame; frame.size.width = CGRectGetWidth(self.tableView.frame); frame;});
+    [header setNeedsUpdateConstraints];
+    [header updateConstraintsIfNeeded];
+    [header setNeedsLayout];
+    [header layoutIfNeeded];
+    [header.regionNameLabel setPreferredMaxLayoutWidth:header.regionNameLabel.frame.size.width];
+    [header setNeedsLayout];
+    [header layoutIfNeeded];
+    
+    return [header systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].height;
+    
+}
+
+- (RegionHeader *)regionHeaderForSection:(NSInteger)section {
+    RegionHeader *header = (RegionHeader *)[[[NSBundle mainBundle] loadNibNamed:NSStringFromClass([RegionHeader class]) owner:nil options:nil] firstObject];
+    [header.regionNameLabel setText:[self.selectedMappings groupForSection:section]];
+    return header;
 }
 
 
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return [self.mappings numberOfSections];
+    return [self.selectedMappings numberOfSections];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self.mappings numberOfItemsInSection:section];
+    return [self.selectedMappings numberOfItemsInSection:section];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -272,7 +356,7 @@ NSString *countriesCollectionName = @"countries";
     
     __block Country *country = nil;
     [self.mainConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-        country = [[transaction ext:sortedCountriesViewName] objectAtIndexPath:indexPath withMappings:self.mappings];
+        country = [[transaction ext:self.selectedMappings.view] objectAtIndexPath:indexPath withMappings:self.selectedMappings];
     }];
     
     [cell.countryNameLabel setText:country.name];

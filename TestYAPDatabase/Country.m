@@ -11,7 +11,10 @@
 @implementation Country
 
 + (NSDictionary *)JSONKeyPathsByPropertyKey {
-    return @{NSStringFromSelector(@selector(countryId)):@"id"};
+    return @{NSStringFromSelector(@selector(countryId)):@"id",
+             NSStringFromSelector(@selector(regionId)):@"region.id",
+             NSStringFromSelector(@selector(regionName)):@"region.value",
+             };
 }
 
 - (BOOL)isEqual:(id)object {
