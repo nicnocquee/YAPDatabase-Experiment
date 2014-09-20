@@ -36,6 +36,8 @@ NSString *countriesCollectionName = @"countries";
     self.title = @"Countries";
     
     [self.tableView registerNib:[UINib nibWithNibName:NSStringFromClass([CountryCell class]) bundle:nil] forCellReuseIdentifier:@"cell"];
+    self.tableView.rowHeight = UITableViewAutomaticDimension;
+    self.tableView.estimatedRowHeight = 68;
     [self.tableView setDelegate:self];
     [self.tableView setDataSource:self];
     
@@ -223,6 +225,7 @@ NSString *countriesCollectionName = @"countries";
     NSLog(@"Country: %@", country);
 }
 
+
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -237,15 +240,21 @@ NSString *countriesCollectionName = @"countries";
     CountryCell *cell = (CountryCell *)[tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
     
     __block Country *country = nil;
-    //NSString *group = [self.mappings groupForSection:indexPath.section];
     [self.mainConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
         country = [[transaction ext:sortedCountriesViewName] objectAtIndexPath:indexPath withMappings:self.mappings];
     }];
     
-    //NSLog(@"Setting %@ - %@ for section %ld row %ld", country.name, country.capitalCity, (long)indexPath.section, (long)indexPath.row);
     [cell.countryNameLabel setText:country.name];
-    [cell.capitalCityLabel setText:country.capitalCity];
+    if (country.capitalCity.length == 0) {
+        UIFontDescriptor *userFont = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleCaption1];
+        NSAttributedString *attr = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"No capital city", nil) attributes:@{NSFontAttributeName: [UIFont italicSystemFontOfSize:userFont.pointSize]}];
+        [cell.capitalCityLabel setAttributedText:attr];
+    } else {
+        [cell.capitalCityLabel setText:country.capitalCity];
+    }
     
+    [cell setNeedsUpdateConstraints];
+    [cell updateConstraintsIfNeeded];
     
     return cell;
 }
