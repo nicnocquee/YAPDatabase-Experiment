@@ -16,6 +16,6 @@
 @property (nonatomic, copy, readonly) NSString *name;
 @property (nonatomic, copy, readonly) NSString *capitalCity;
 
-
+- (BOOL)isEqualToCountry:(Country *)country;
 
 @end
