@@ -14,6 +14,8 @@
 		03B326BC19CD5BE000B87347 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 03B326BB19CD5BE000B87347 /* Images.xcassets */; };
 		03B326BF19CD5BE000B87347 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 03B326BD19CD5BE000B87347 /* LaunchScreen.xib */; };
 		03B326CB19CD5BE000B87347 /* TestYAPDatabaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B326CA19CD5BE000B87347 /* TestYAPDatabaseTests.m */; };
+		03B326D619CD5F7200B87347 /* Country.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B326D519CD5F7200B87347 /* Country.m */; };
+		22ECC34D3E084F9687BF5DD3 /* libPods-TestYAPDatabase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D395FA4B08724A55B5E0857B /* libPods-TestYAPDatabase.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +42,10 @@
 		03B326C419CD5BE000B87347 /* TestYAPDatabaseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestYAPDatabaseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		03B326C919CD5BE000B87347 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		03B326CA19CD5BE000B87347 /* TestYAPDatabaseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestYAPDatabaseTests.m; sourceTree = "<group>"; };
+		03B326D419CD5F7200B87347 /* Country.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Country.h; sourceTree = "<group>"; };
+		03B326D519CD5F7200B87347 /* Country.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Country.m; sourceTree = "<group>"; };
+		2482CBA630DF4424A9B8A00E /* Pods-TestYAPDatabase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TestYAPDatabase.xcconfig"; path = "Pods/Pods-TestYAPDatabase.xcconfig"; sourceTree = "<group>"; };
+		D395FA4B08724A55B5E0857B /* libPods-TestYAPDatabase.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TestYAPDatabase.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22ECC34D3E084F9687BF5DD3 /* libPods-TestYAPDatabase.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,6 +73,8 @@
 				03B326AD19CD5BE000B87347 /* TestYAPDatabase */,
 				03B326C719CD5BE000B87347 /* TestYAPDatabaseTests */,
 				03B326AC19CD5BE000B87347 /* Products */,
+				2482CBA630DF4424A9B8A00E /* Pods-TestYAPDatabase.xcconfig */,
+				C4BBD7AA773244588746E974 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -89,6 +98,8 @@
 				03B326BB19CD5BE000B87347 /* Images.xcassets */,
 				03B326BD19CD5BE000B87347 /* LaunchScreen.xib */,
 				03B326AE19CD5BE000B87347 /* Supporting Files */,
+				03B326D419CD5F7200B87347 /* Country.h */,
+				03B326D519CD5F7200B87347 /* Country.m */,
 			);
 			path = TestYAPDatabase;
 			sourceTree = "<group>";
@@ -119,6 +130,14 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		C4BBD7AA773244588746E974 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D395FA4B08724A55B5E0857B /* libPods-TestYAPDatabase.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -126,9 +145,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 03B326CE19CD5BE000B87347 /* Build configuration list for PBXNativeTarget "TestYAPDatabase" */;
 			buildPhases = (
+				7825F854830F40BBA4A1FCEC /* Check Pods Manifest.lock */,
 				03B326A719CD5BE000B87347 /* Sources */,
 				03B326A819CD5BE000B87347 /* Frameworks */,
 				03B326A919CD5BE000B87347 /* Resources */,
+				4092A53335C74D49A5DDC8DB /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -214,11 +235,45 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		4092A53335C74D49A5DDC8DB /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Pods-TestYAPDatabase-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		7825F854830F40BBA4A1FCEC /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		03B326A719CD5BE000B87347 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03B326D619CD5F7200B87347 /* Country.m in Sources */,
 				03B326B719CD5BE000B87347 /* ViewController.m in Sources */,
 				03B326B419CD5BE000B87347 /* AppDelegate.m in Sources */,
 				03B326B119CD5BE000B87347 /* main.m in Sources */,
@@ -341,6 +396,7 @@
 		};
 		03B326CF19CD5BE000B87347 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2482CBA630DF4424A9B8A00E /* Pods-TestYAPDatabase.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = TestYAPDatabase/Info.plist;
@@ -351,6 +407,7 @@
 		};
 		03B326D019CD5BE000B87347 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2482CBA630DF4424A9B8A00E /* Pods-TestYAPDatabase.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = TestYAPDatabase/Info.plist;
@@ -412,6 +469,7 @@
 				03B326D019CD5BE000B87347 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		03B326D119CD5BE000B87347 /* Build configuration list for PBXNativeTarget "TestYAPDatabaseTests" */ = {
 			isa = XCConfigurationList;
@@ -420,6 +478,7 @@
 				03B326D319CD5BE000B87347 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

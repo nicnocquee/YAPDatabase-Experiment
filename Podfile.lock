@@ -1,0 +1,49 @@
+PODS:
+  - AFNetworking (2.4.1):
+    - AFNetworking/NSURLConnection
+    - AFNetworking/NSURLSession
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+    - AFNetworking/UIKit
+  - AFNetworking/NSURLConnection (2.4.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/NSURLSession (2.4.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (2.4.1)
+  - AFNetworking/Security (2.4.1)
+  - AFNetworking/Serialization (2.4.1)
+  - AFNetworking/UIKit (2.4.1):
+    - AFNetworking/NSURLConnection
+    - AFNetworking/NSURLSession
+  - CocoaLumberjack (1.9.2):
+    - CocoaLumberjack/Extensions
+  - CocoaLumberjack/Core (1.9.2)
+  - CocoaLumberjack/Extensions (1.9.2):
+    - CocoaLumberjack/Core
+  - Mantle (1.5):
+    - Mantle/extobjc
+  - Mantle/extobjc (1.5)
+  - YapDatabase (2.5.2):
+    - YapDatabase/standard
+  - YapDatabase/common (2.5.2):
+    - CocoaLumberjack (~> 1)
+  - YapDatabase/standard (2.5.2):
+    - YapDatabase/common
+
+DEPENDENCIES:
+  - AFNetworking
+  - Mantle
+  - YapDatabase
+
+SPEC CHECKSUMS:
+  AFNetworking: 0aabc6fae66d6e5d039eeb21c315843c7aae51ab
+  CocoaLumberjack: 205769c032b5fef85b92472046bcc8b7e7c8a817
+  Mantle: c67a7e45e14196ed42b2a7cbb98ff6a9920e6b92
+  YapDatabase: 50f763e49374c38025e8255b4c468d26d81b1048
+
+COCOAPODS: 0.33.1
