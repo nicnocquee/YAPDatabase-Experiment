@@ -25,6 +25,8 @@ NSString *countriesCollectionName = @"countries";
 @property (nonatomic, strong) YapDatabaseViewMappings *mappings;
 @property (nonatomic, strong) YapDatabase *database;
 @property (nonatomic, assign) int page;
+@property (nonatomic, assign) int totalCountries;
+@property (nonatomic, assign, getter=isFetching) BOOL fetching;
 
 @end
 
@@ -137,6 +139,12 @@ NSString *countriesCollectionName = @"countries";
         return;
     }
     
+    NSInteger numberOfCountries = [self.mappings numberOfItemsInAllGroups];
+    if (numberOfCountries > 0) {
+        self.title = [NSString stringWithFormat:NSLocalizedString(@"Countries (%d)", nil), (int)numberOfCountries];
+    }
+    
+    
     [self.tableView beginUpdates];
     
     for (YapDatabaseViewSectionChange *sectionChange in sectionChanges) {
@@ -157,16 +165,16 @@ NSString *countriesCollectionName = @"countries";
     for (YapDatabaseViewRowChange *rowChange in rowChanges) {
         switch (rowChange.type) {
             case YapDatabaseViewChangeDelete:{
-                [self.tableView deleteRowsAtIndexPaths:@[rowChange.indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                [self.tableView deleteRowsAtIndexPaths:@[rowChange.indexPath] withRowAnimation:UITableViewRowAnimationTop];
                 break;
             }
             case YapDatabaseViewChangeInsert:{
-                [self.tableView insertRowsAtIndexPaths:@[rowChange.newIndexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                [self.tableView insertRowsAtIndexPaths:@[rowChange.newIndexPath] withRowAnimation:UITableViewRowAnimationTop];
                 break;
             }
             case YapDatabaseViewChangeMove:{
-                [self.tableView deleteRowsAtIndexPaths:@[rowChange.indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-                [self.tableView insertRowsAtIndexPaths:@[rowChange.newIndexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                [self.tableView deleteRowsAtIndexPaths:@[rowChange.indexPath] withRowAnimation:UITableViewRowAnimationTop];
+                [self.tableView insertRowsAtIndexPaths:@[rowChange.newIndexPath] withRowAnimation:UITableViewRowAnimationTop];
                 break;
             }
             case YapDatabaseViewChangeUpdate:{
@@ -181,6 +189,14 @@ NSString *countriesCollectionName = @"countries";
     [self.tableView endUpdates];
 }
 
+#pragma mark - UIScrollViewDelegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    if (scrollView.contentOffset.y > scrollView.contentSize.height - scrollView.frame.size.height - scrollView.contentInset.top - 100) {
+        [self fetchNext];
+    }
+}
+
 #pragma mark - Networking
 
 - (void)fetchCountries {
@@ -189,6 +205,8 @@ NSString *countriesCollectionName = @"countries";
     [manager GET:[NSString stringWithFormat:@"http://api.worldbank.org/countries?format=json&page=%d", self.page] parameters:nil success:^(AFHTTPRequestOperation *operation, NSArray *responseObject) {
         NSArray *countriesJSON = [responseObject lastObject];
         if (countriesJSON) {
+            NSDictionary *info = [responseObject firstObject];
+            self.totalCountries = [info[@"total"] intValue];
             NSLog(@"Got %lu countries", (unsigned long)countriesJSON.count);
             NSError *error;
             NSArray *countries = [MTLJSONAdapter modelsOfClass:[Country class] fromJSONArray:countriesJSON error:&error];
@@ -204,9 +222,22 @@ NSString *countriesCollectionName = @"countries";
                 NSLog(@"Error: %@", error);
             }
         }
+        self.fetching = NO;
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        self.fetching = NO;
+        self.page--;
+        self.page = MAX(self.page, 1);
         NSLog(@"Error: %@", error);
     }];
+}
+
+- (void)fetchNext {
+    NSInteger totalCountriesFetched = [self.mappings numberOfItemsInAllGroups];
+    if (totalCountriesFetched < self.totalCountries && !self.isFetching) {
+        self.fetching = YES;
+        self.page++;
+        [self fetchCountries];
+    }
 }
 
 #pragma mark - UITableViewDelegate
