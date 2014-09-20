@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "Country.h"
+#import "CountryCell.h"
 
 #import <YapDatabase.h>
 #import <YapDatabaseView.h>
@@ -33,6 +34,8 @@ NSString *countriesCollectionName = @"countries";
     [super viewDidLoad];
     
     self.title = @"Countries";
+    
+    [self.tableView registerNib:[UINib nibWithNibName:NSStringFromClass([CountryCell class]) bundle:nil] forCellReuseIdentifier:@"cell"];
     [self.tableView setDelegate:self];
     [self.tableView setDataSource:self];
     
@@ -210,6 +213,16 @@ NSString *countriesCollectionName = @"countries";
     return [self.mappings groupForSection:section];
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    __block Country *country = nil;
+    //NSString *group = [self.mappings groupForSection:indexPath.section];
+    [self.mainConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+        country = [[transaction ext:sortedCountriesViewName] objectAtIndexPath:indexPath withMappings:self.mappings];
+    }];
+    NSLog(@"Country: %@", country);
+}
+
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -221,7 +234,7 @@ NSString *countriesCollectionName = @"countries";
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
+    CountryCell *cell = (CountryCell *)[tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
     
     __block Country *country = nil;
     //NSString *group = [self.mappings groupForSection:indexPath.section];
@@ -229,8 +242,10 @@ NSString *countriesCollectionName = @"countries";
         country = [[transaction ext:sortedCountriesViewName] objectAtIndexPath:indexPath withMappings:self.mappings];
     }];
     
-    [cell.textLabel setText:country.name];
-    [cell.detailTextLabel setText:country.capitalCity];
+    //NSLog(@"Setting %@ - %@ for section %ld row %ld", country.name, country.capitalCity, (long)indexPath.section, (long)indexPath.row);
+    [cell.countryNameLabel setText:country.name];
+    [cell.capitalCityLabel setText:country.capitalCity];
+    
     
     return cell;
 }
