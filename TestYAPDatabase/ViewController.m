@@ -45,6 +45,9 @@ NSString *countriesCollectionName = @"countries";
     UIBarButtonItem *regionButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Regions", nil) style:UIBarButtonItemStylePlain target:self action:@selector(didTapRegionButton:)];
     [self.navigationItem setRightBarButtonItem:regionButton];
     
+    UIBarButtonItem *reverseButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Reverse", nil) style:UIBarButtonItemStylePlain target:self action:@selector(didTapReverseButton:)];
+    [self.navigationItem setLeftBarButtonItem:reverseButton];
+    
     [self.tableView registerNib:[UINib nibWithNibName:NSStringFromClass([CountryCell class]) bundle:nil] forCellReuseIdentifier:@"cell"];
     
     self.tableView.rowHeight = UITableViewAutomaticDimension;
@@ -84,7 +87,14 @@ NSString *countriesCollectionName = @"countries";
         UIBarButtonItem *regionButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Regions", nil) style:UIBarButtonItemStylePlain target:self action:@selector(didTapRegionButton:)];
         [self.navigationItem setRightBarButtonItem:regionButton];
     }
-    
+}
+
+- (void)didTapReverseButton:(id)sender {
+    [self.mainConnection beginLongLivedReadTransaction];
+    for (NSString *group in self.selectedMappings.allGroups) {
+        [self.selectedMappings setIsReversed:![self.selectedMappings isReversedForGroup:group] forGroup:group];
+    }
+    [self.tableView reloadData];
 }
 
 #pragma mark - Database
