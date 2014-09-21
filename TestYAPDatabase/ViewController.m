@@ -45,7 +45,7 @@ NSString *countriesCollectionName = @"countries";
     UIBarButtonItem *regionButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Regions", nil) style:UIBarButtonItemStylePlain target:self action:@selector(didTapRegionButton:)];
     [self.navigationItem setRightBarButtonItem:regionButton];
     
-    UIBarButtonItem *reverseButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Reverse", nil) style:UIBarButtonItemStylePlain target:self action:@selector(didTapReverseButton:)];
+    UIBarButtonItem *reverseButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"A->Z", nil) style:UIBarButtonItemStylePlain target:self action:@selector(didTapReverseButton:)];
     [self.navigationItem setLeftBarButtonItem:reverseButton];
     
     [self.tableView registerNib:[UINib nibWithNibName:NSStringFromClass([CountryCell class]) bundle:nil] forCellReuseIdentifier:@"cell"];
@@ -91,9 +91,14 @@ NSString *countriesCollectionName = @"countries";
 
 - (void)didTapReverseButton:(id)sender {
     [self.mainConnection beginLongLivedReadTransaction];
+    BOOL isReversed = NO;
     for (NSString *group in self.selectedMappings.allGroups) {
-        [self.selectedMappings setIsReversed:![self.selectedMappings isReversedForGroup:group] forGroup:group];
+        isReversed = ![self.selectedMappings isReversedForGroup:group];
+        [self.selectedMappings setIsReversed:isReversed forGroup:group];
     }
+    
+    UIBarButtonItem *reverseButton = [[UIBarButtonItem alloc] initWithTitle:(isReversed)?NSLocalizedString(@"Z->A", nil):NSLocalizedString(@"A->Z", nil) style:UIBarButtonItemStylePlain target:self action:@selector(didTapReverseButton:)];
+    [self.navigationItem setLeftBarButtonItem:reverseButton];
     [self.tableView reloadData];
 }
 
